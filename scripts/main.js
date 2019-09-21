@@ -1,25 +1,32 @@
 $(document).ready(function () {
     console.log("started!");
+    populateIndicators();
     loadData();
 });
 
-loadData = function () {
-    var j1 = $.ajax("https://api.data.gov.sg/v1/environment/psi", {
-        "dataType": "json",
-        "data": {
-            "date": "2019-09-21"
-        }
-    });
+formatDate = function (date) {
+    return date.getFullYear() + '-'
+        + (date.getMonth() + 1).toString().padStart(2, '0') + '-'
+        + date.getDate().toString().padStart(2, '0') + 'T'
+        + date.getHours().toString().padStart(2, '0') + ':'
+        + date.getMinutes().toString().padStart(2, '0') + ':'
+        + date.getSeconds().toString().padStart(2, '0');
+}
 
-    var j2 = $.ajax("https://api.data.gov.sg/v1/environment/pm25", {
+loadData = function (date) {
+
+    var options = {
         "dataType": "json",
         "data": {
-            "date": "2019-09-21"
+            "datetime": formatDate(new Date())
         }
-    });
+    }
+
+    var j1 = $.ajax("https://api.data.gov.sg/v1/environment/psi", options);
+    var j2 = $.ajax("https://api.data.gov.sg/v1/environment/pm25", options);
 
     $.when(j1, j2).then(function (a1, a2) {
-        populateTables(a1[2].responseJSON, a2[2].responseJSON)
+        populateData(a1[2].responseJSON, a2[2].responseJSON)
     }, function (jqXHR, status, error) {
         var x1 = j1;
         var x2 = j2;
@@ -29,9 +36,15 @@ loadData = function () {
     })
 }
 
-populateTables = function (dataPSI, dataPM25) {
+formatStr = function (str, formats) {
+    Object.entries(formats).forEach(entry => {
+        str = str.replace(new RegExp("{{ " + entry[0] + " }}", "g"), entry[1]);
+    })
+    return str;
+}
+
+populateData = function (dataPSI, dataPM25) {
     var regionMetadata = dataPSI.region_metadata.filter(e => e.name != "national");
-    getNeighbour(regionMetadata);
 
     var data = dataPSI.items.map(function (psi, i) {
         var pm25 = dataPM25.items[i];
@@ -46,19 +59,26 @@ populateTables = function (dataPSI, dataPM25) {
             "pm25_1h": pm25.readings.pm25_one_hourly
         };
     });
-    console.log(data);
 
-    $("#data-tables > #data-west").load("templates/datatable.html", function (response, status, jqXHR) {
+    indicators.forEach(indicator => {
+        var sel = ".card#" + indicator.label;
+        var html = $(sel).html();
 
-        data.reverse().forEach(element => {
-            $('<th scope="col">' + element.timestamp.getHours() + ':00</th>')
-                .appendTo("#data-west > table > thead > tr");
-            $('<td>' + element.psi_24h.west + '</td>')
-                .appendTo("#data-west > table > tbody > .psi-24");
-            $('<td>' + element.pm25_1h.west + " (" + judgePM25(element.pm25_1h.west).band + ')</td>')
-                .appendTo("#data-west > table > tbody > .pm25");
+        var readingHL = data[0][indicator.label].central;
+        html = formatStr(html, {
+            "highlight.reading": readingHL,
+            "highlight.label": "Central",
+            "highlight.band": judgePM25(readingHL).descriptor
         });
 
+        regionsL.forEach(region => {
+            var reading = data[0][indicator.label][region];
+            var formats = {};
+            formats[region + ".reading"] = reading;
+            formats[region + ".band"] = indicator.judge(reading).descriptor;
+            html = formatStr(html, formats);
+        })
 
+        $(sel).html(html);
     });
 }

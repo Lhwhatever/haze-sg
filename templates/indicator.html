@@ -1,0 +1,40 @@
+<div class="col-md-6">
+    <div class="card" id="{{ indicator }}">
+        <div class="card-body">
+            <div class="d-flex flex-row align-items-end clearfix">
+                <h3 class="card-title float-left">{{ title }}</h3>
+                <p class="card-title float-left ml-2 muted">{{ subtitle }}</p>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <h1 class="reading text-right">{{ highlight.reading }}</h1>
+                    </div>
+                    <div class="col text-left">
+                        <span class="region text-muted">{{ highlight.label }}</span><br>
+                        <span class="band">{{ highlight.band }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="container mt-4">
+                <div class="row">
+                    <div class="col-xs-4 col-lg text-center">
+                        North<h3 class="col">{{ north.reading }}</h3><span>{{ north.band }}</span>
+                    </div>
+                    <div class="col-xs-4 col-lg text-center">
+                        South<h3 class="col">{{ south.reading }}</h3><span>{{ south.band }}</span>
+                    </div>
+                    <div class="col-xs-4 col-lg text-center">
+                        East<h3 class="col">{{ east.reading }}</h3><span>{{ east.band }}</span>
+                    </div>
+                    <div class="col-xs-4 col-lg text-center">
+                        West<h3 class="col">{{ west.reading }}</h3><span>{{ west.band }}</span>
+                    </div>
+                    <div class="col-xs-4 col-lg text-center">
+                        Central<h3 class="col">{{ central.reading }}</h3><span>{{ central.band }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
