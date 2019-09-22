@@ -18,6 +18,17 @@
     <div class="container-fluid mt-2">
         <div class="row" id="indicators"></div>
     </div>
+    <div class="text-right mr-2 last-update time-descr">
+        Last updated <span class="time"></span>
+    </div>
+    <div class="container settings mt-4">
+        <h4>Settings</h4>
+        <div class="form-group row">
+            <label class="col-4 col-lg-2 align-middle" for="">Nearest Station</label>
+            <input class="form-control col-8 col-lg-4" type="text" readonly id="location-nearest"
+                placeholder="Location settings disabled">
+        </div>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -30,7 +41,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-    <script src="scripts/regions.js"></script>
+    <script src="scripts/geo.js"></script>
     <script src="scripts/indicators.js"></script>
     <script src="scripts/main.js"></script>
 </body>

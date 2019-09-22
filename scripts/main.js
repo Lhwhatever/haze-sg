@@ -1,7 +1,23 @@
+var highlight = {
+    "pm25_1h": "central",
+    "psi_24h": "national",
+    "set": function (indicator, newValue) {
+        this[indicator] = newValue;
+    },
+    "unset": function (indicator) {
+        if (indicator == "pm25_1h") this.pm25_1h = "central";
+        else this.psi_24h = "national";
+    }
+}
+
+var lastUpdate;
+
 $(document).ready(function () {
     console.log("started!");
     populateIndicators();
-    loadData();
+    lastUpdate = new Date(0);
+    tick();
+    setInterval(tick, 60000);
 });
 
 formatDate = function (date) {
@@ -13,27 +29,34 @@ formatDate = function (date) {
         + date.getSeconds().toString().padStart(2, '0');
 }
 
-loadData = function (date) {
+formatDistance = function (distInKm) {
+    if (distInKm < 1) return Math.round(distInKm * 1000) + " m";
+    return Math.round(distInKm * 10) / 10 + " km";
+}
 
-    var options = {
-        "dataType": "json",
-        "data": {
-            "datetime": formatDate(new Date())
-        }
-    }
+tick = function () {
+    var now = new Date();
+    indicators.forEach(indicator => loadData(indicator, now));
 
-    var j1 = $.ajax("https://api.data.gov.sg/v1/environment/psi", options);
-    var j2 = $.ajax("https://api.data.gov.sg/v1/environment/pm25", options);
-
-    $.when(j1, j2).then(function (a1, a2) {
-        populateData(a1[2].responseJSON, a2[2].responseJSON)
-    }, function (jqXHR, status, error) {
-        var x1 = j1;
-        var x2 = j2;
-        if (x1.readyState != 4) x1.abort();
-        if (x2.readyState != 4) x2.abort();
-        console.log("Failed to load data");
+    getNeighbour(region => {
+        highlight.set("pm25_1h", region.label);
+        highlight.set("psi_24h", region.label);
+        $("#location-nearest").attr(
+            "placeholder",
+            region.label.charAt(0).toUpperCase() + region.label.slice(1)
+            + " (" + formatDistance(region.dist * 6371) + " away)"
+        );
     })
+}
+
+loadData = function (indicator, date) {
+    $.get(indicator.url, { "datetime": formatDate(date) },
+        (data, status, jqXHR) => {
+            indicator.data = data;
+            populateData(indicator)
+        },
+        "json"
+    );
 }
 
 formatStr = function (str, formats) {
@@ -43,42 +66,35 @@ formatStr = function (str, formats) {
     return str;
 }
 
-populateData = function (dataPSI, dataPM25) {
-    var regionMetadata = dataPSI.region_metadata.filter(e => e.name != "national");
+populateData = function (indicator) {
+    var data = indicator.data;
+    var sel = "#indicators #" + indicator.label;
 
-    var data = dataPSI.items.map(function (psi, i) {
-        var pm25 = dataPM25.items[i];
+    $(sel + " .time-descr > .time").text(new Date(data.items[0].timestamp).toLocaleString("en-SG"));
 
-        var udts1 = new Date(psi.update_timestamp).getTime();
-        var udts2 = new Date(pm25.update_timestamp).getTime();
-
-        return {
-            "timestamp": new Date(psi.timestamp),
-            "update_timestamp": new Date(Math.max(udts1, udts2)),
-            "psi_24h": psi.readings.psi_twenty_four_hourly,
-            "pm25_1h": pm25.readings.pm25_one_hourly
-        };
+    regions.forEach(region => {
+        var regionDivSel = sel + " .region-" + region;
+        var reading = data.items[0].readings[indicator.key][region];
+        var band = indicator.judge(reading);
+        $(regionDivSel + " .reading").text(reading)
+            .removeClass(indicator.classes).addClass(band.class);
+        $(regionDivSel + " .band").text(band.descriptor)
+            .removeClass(indicator.classes).addClass(band.class);
     });
 
-    indicators.forEach(indicator => {
-        var sel = ".card#" + indicator.label;
-        var html = $(sel).html();
+    var hlRegion = highlight[indicator.label];
+    var hlReading = data.items[0].readings[indicator.key][hlRegion];
+    var hlBand = indicator.judge(hlReading);
 
-        var readingHL = data[0][indicator.label].central;
-        html = formatStr(html, {
-            "highlight.reading": readingHL,
-            "highlight.label": "Central",
-            "highlight.band": judgePM25(readingHL).descriptor
-        });
+    $(sel + " .highlight .reading").text(hlReading)
+        .removeClass(indicator.classes).addClass(hlBand.class);
+    $(sel + " .highlight .region").text(hlRegion);
+    $(sel + " .highlight .band").text(indicator.judge(hlReading).descriptor)
+        .removeClass(indicator.classes).addClass(hlBand.class);
 
-        regionsL.forEach(region => {
-            var reading = data[0][indicator.label][region];
-            var formats = {};
-            formats[region + ".reading"] = reading;
-            formats[region + ".band"] = indicator.judge(reading).descriptor;
-            html = formatStr(html, formats);
-        })
+    $(".card#" + indicator.label)
+        .removeClass(indicator.classes).addClass(hlBand.class);
 
-        $(sel).html(html);
-    });
+    lastUpdate = Math.max(lastUpdate, new Date(data.items[0].update_timestamp));
+    $(".time-descr.last-update > .time").text(new Date(lastUpdate).toLocaleString("en-SG"));
 }

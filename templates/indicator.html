@@ -5,34 +5,43 @@
                 <h3 class="card-title float-left">{{ title }}</h3>
                 <p class="card-title float-left ml-2 muted">{{ subtitle }}</p>
             </div>
-            <div class="container">
-                <div class="row">
+            <div class="time-descr text-muted">for <span class="time"></span></div>
+            <div class="container mt-4">
+                <div class="row highlight">
                     <div class="col">
-                        <h1 class="reading text-right">{{ highlight.reading }}</h1>
+                        <h1 class="reading text-right"></h1>
                     </div>
                     <div class="col text-left">
-                        <span class="region text-muted">{{ highlight.label }}</span><br>
-                        <span class="band">{{ highlight.band }}</span>
+                        <span class="region label text-muted text-capitalize"></span><br>
+                        <span class="band"></span>
                     </div>
                 </div>
             </div>
-            <div class="container mt-4">
-                <div class="row">
-                    <div class="col-xs-4 col-lg text-center">
-                        North<h3 class="col">{{ north.reading }}</h3><span>{{ north.band }}</span>
-                    </div>
-                    <div class="col-xs-4 col-lg text-center">
-                        South<h3 class="col">{{ south.reading }}</h3><span>{{ south.band }}</span>
-                    </div>
-                    <div class="col-xs-4 col-lg text-center">
-                        East<h3 class="col">{{ east.reading }}</h3><span>{{ east.band }}</span>
-                    </div>
-                    <div class="col-xs-4 col-lg text-center">
-                        West<h3 class="col">{{ west.reading }}</h3><span>{{ west.band }}</span>
-                    </div>
-                    <div class="col-xs-4 col-lg text-center">
-                        Central<h3 class="col">{{ central.reading }}</h3><span>{{ central.band }}</span>
-                    </div>
+            <div class="row mt-4">
+                <div class="reading-grp col-4 offset-1 col-xl offset-xl-0 text-center region-north">
+                    <span class="region-label">North</span>
+                    <h3 class="reading">X</h3>
+                    <span class="band"></span>
+                </div>
+                <div class="reading-grp col-4 offset-2 col-xl offset-xl-0 text-center region-south">
+                    <span class="region-label">South</span>
+                    <h3 class="reading">X</h3>
+                    <span class="band"></span>
+                </div>
+                <div class="reading-grp col-4 col-xl text-center region-east">
+                    <span class="region-label">East</span>
+                    <h3 class="reading">X</h3>
+                    <span class="band"></span>
+                </div>
+                <div class="reading-grp col-4 col-xl text-center region-west">
+                    <span class="region-label">West</span>
+                    <h3 class="reading">X</h3>
+                    <span class="band"></span>
+                </div>
+                <div class="reading-grp col-4 col-xl text-center region-central">
+                    <span class="region-label">Central</span>
+                    <h3 class="reading">X</h3>
+                    <span class="band"></span>
                 </div>
             </div>
         </div>

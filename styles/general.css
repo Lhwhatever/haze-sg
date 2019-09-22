@@ -1,0 +1,63 @@
+.time-descr {
+    font-style: italic;
+}
+
+#indicators .card {
+    border-radius: 1em
+}
+
+:root {
+    --band-green: rgb(75, 162, 72);
+    --band-blue: rgb(4, 110, 161);
+    --band-yellow: rgb(245, 209, 14);
+    --band-orange: rgb(253, 191, 40);
+    --band-red: rgb(213, 38, 30);
+}
+
+#psi_24h .reading.good {
+    color: var(--band-green);
+}
+
+#psi_24h .reading.moderate, #pm25_1h .reading.normal {
+    color: var(--band-blue);
+}
+
+#psi_24h .reading.unhealthy, #pm25_1h .reading.elevated {
+    color: var(--band-yellow);
+}
+
+#psi_24h .reading.v_unhealthy, #pm25_1h .reading.high {
+    color: var(--band-orange);
+}
+
+#psi_24h .reading.hazardous, #pm25_1h .reading.v_high {
+    color: var(--band-red);
+}
+
+.card#psi_24h.good {
+    border-color: var(--band-green)
+}
+
+.card#psi_24h.moderate, .card#pm25_1h.normal {
+    border-color: var(--band-blue);
+}
+
+.card#psi_24h.unhealthy, .card#pm25_1h.elevated {
+    border-color: var(--band-yellow);
+}
+
+.card#psi_24h.v_unhealthy, .card#pm25_1h.high {
+    border-color: var(--band-orange);
+}
+
+.card#psi_24h.hazardous, .card#pm25_1h.v_high {
+    border-color: var(--band-red);
+}
+
+.reading-grp {
+    border-radius: 0.5em
+}
+
+.reading-grp:hover, .reading-grp:focus {
+    background-color: #eee
+}
