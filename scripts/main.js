@@ -1,12 +1,20 @@
 var highlight = {
-    "pm25_1h": "central",
-    "psi_24h": "national",
+    "nearest": "",
+    "pm25_1h": "",
+    "psi_24h": "",
+    "get": function (indicator) {
+        if (this[indicator]) return this[indicator];
+
+        if (this.nearest) return this.nearest;
+        if (indicator == 'pm25_1h') return "central";
+        else return "national";
+    },
     "set": function (indicator, newValue) {
         this[indicator] = newValue;
     },
     "unset": function (indicator) {
-        if (indicator == "pm25_1h") this.pm25_1h = "central";
-        else this.psi_24h = "national";
+        console.log("unset!");
+        this[indicator] = null;
     }
 }
 
@@ -39,8 +47,7 @@ tick = function () {
     indicators.forEach(indicator => loadData(indicator, now));
 
     getNeighbour(region => {
-        highlight.set("pm25_1h", region.label);
-        highlight.set("psi_24h", region.label);
+        highlight.set("nearest", region.label);
         $("#location-nearest").attr(
             "placeholder",
             region.label.charAt(0).toUpperCase() + region.label.slice(1)
@@ -82,7 +89,7 @@ populateData = function (indicator) {
             .removeClass(indicator.classes).addClass(band.class);
     });
 
-    var hlRegion = highlight[indicator.label];
+    var hlRegion = highlight.get(indicator.label);
     var hlReading = data.items[0].readings[indicator.key][hlRegion];
     var hlBand = indicator.judge(hlReading);
 
