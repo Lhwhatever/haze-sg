@@ -13,8 +13,7 @@ var highlight = {
         this[indicator] = newValue;
     },
     "unset": function (indicator) {
-        console.log("unset!");
-        this[indicator] = null;
+        this[indicator] = "";
     }
 }
 
