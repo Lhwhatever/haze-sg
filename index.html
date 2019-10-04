@@ -1,47 +1,91 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="styles/general.css">
+    <title>Haze in Singapore</title>
 
-    <title>SG Haze Situation</title>
+    <!-- Required Stylesheets -->
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+
+    <link type="text/css" rel="stylesheet" href="styles/general.css" />
+
+    <!-- Load polyfills to support older browsers -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"></script>
+
+    <!-- Required scripts -->
+    <script src="https://unpkg.com/vue@latest/dist/vue.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 </head>
 
 <body>
-    <div class="container-fluid mt-2">
-        <div class="row" id="indicators"></div>
-    </div>
-    <div class="text-right mr-2 last-update time-descr">
-        Last updated <span class="time"></span>
-    </div>
-    <div class="container settings mt-4">
-        <h4>Settings</h4>
-        <div class="form-group row">
-            <label class="col-4 col-lg-2 align-middle" for="">Nearest Station</label>
-            <input class="form-control col-8 col-lg-4" type="text" readonly id="location-nearest"
-                placeholder="Location settings disabled">
-        </div>
+    <!-- Our application root element -->
+    <div id="app">
+        <b-navbar toggleable="sm" variant="secondary">
+            <b-navbar-brand href="#">Haze SG</b-navbar-brand>
+            <b-collapse id="nav-collapse" is-nav>
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-item href="https://www.haze.gov.sg" target="_blank">NEA Website</b-nav-item>
+                </b-navbar-nav>
+            </b-collapse>
+        </b-navbar>
+        <b-container id="main" class="pt-3">
+            <b-row>
+                <b-col cols="12" lg="6">
+                    <indicator v-bind:indicator="indicators.pm25_1h"></indicator>
+                </b-col>
+                <b-col cols="12" lg="6">
+                    <indicator v-bind:indicator="indicators.psi_24h"></indicator>
+                </b-col>
+            </b-row>
+        </b-container>
     </div>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-        integrity="sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-    <script src="scripts/geo.js"></script>
+    <script type="text/x-template" id="reading-template">
+        <div class="reading text-center pb-3">
+            <span class="text-capitalize">{{ read.zone }}</span>
+            <br>
+            <h2 v-bind:class="read.classes">{{ read.value }}</h2>
+            <span class="text-capitalize">{{ read.band }}</span>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="indicator-template">
+        <b-card class="mb-4" v-bind:id="indicator.id">
+            <div class="d-flex flex-row">
+                <b-card-title v-html="indicator.title"></b-card-title>
+                <span class="mt-1 ml-2">{{ indicator.subtitle }}</span>
+            </div>
+            <b-card-sub-title class="float-none clearfix pb-2">for {{ indicator.time.toLocaleString() }} </b-card-sub-title>
+            <b-container>
+                <b-row>
+                    <b-col cols="6" md="4">
+                        <reading v-bind:ind="indicator.id" v-bind:read="indicator.getData('north')"></reading>
+                    </b-col>
+                    <b-col cols="6" md="4">
+                        <reading v-bind:ind="indicator.id" v-bind:read="indicator.getData('south')"></reading>
+                    </b-col>
+                    <b-col cols="12" md="4">
+                        <reading v-bind:ind="indicator.id" v-bind:read="indicator.getData('central')"></reading>
+                    </b-col>
+                    <b-col cols="6">
+                        <reading v-bind:ind="indicator.id" v-bind:read="indicator.getData('east')"></reading>
+                    </b-col>
+                    <b-col cols="6">
+                        <reading v-bind:ind="indicator.id" v-bind:read="indicator.getData('west')"></reading>
+                    </b-col>
+                </b-row>
+            </b-container>
+        </b-card>
+    </script>
+
     <script src="scripts/indicators.js"></script>
     <script src="scripts/main.js"></script>
 </body>
