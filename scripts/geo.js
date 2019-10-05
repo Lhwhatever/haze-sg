@@ -1,14 +1,13 @@
-var regionMetadata = [
-    { label: "north", latitude: 1.41803, longitude: 103.82 },
-    { label: "south", latitude: 1.29587, longitude: 103.82 },
-    { label: "east", latitude: 1.35735, longitude: 103.94 },
-    { label: "west", latitude: 1.35735, longitude: 103.7 },
-    { label: "central", latitude: 1.35735, longitude: 103.82 }
-]
-
-var regions = regionMetadata.map(element => element.label);
+var regionMetadata = {
+    north: { lat: 1.41803, lng: 103.82 },
+    south: { lat: 1.29587, lng: 103.82 },
+    east: { lat: 1.35735, lng: 103.94 },
+    west: { lat: 1.35735, lng: 103.7 },
+    central: { lat: 1.35735, lng: 103.82 }
+}
 
 var DEG2RAD = Math.PI / 180;
+var EARTH_RAD_IN_KM = 6371;
 
 sinSq = function (x) {
     var sine = Math.sin(x);
@@ -25,17 +24,18 @@ reverseHaversine = function (lat1, long1, lat2, long2) {
         Math.cos(lat1) * Math.cos(lat2) * sinSq((long2 - long1) / 2)));
 }
 
-getNeighbour = function (callback, error) {
-    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(function (pos) {
-        var lat = pos.coords.latitude;
-        var long = pos.coords.longitude;
-
-        callback(regionMetadata.reduce(function (acc, curr) {
-            var currDist = reverseHaversine(lat, long,
-                curr.latitude, curr.longitude);
-            if (acc.dist <= currDist) return acc;
-            return { "label": curr.label, "dist": currDist };
-        }, { "label": "error", "dist": 1000 }));
-    });
+getLocation = function (callback, error) {
+    if (navigator.geolocation)
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            var lat = pos.coords.latitude;
+            var lng = pos.coords.longitude;
+            callback(lat, lng);
+        });
     else if (error) error();
 }
+
+formatDist = function (distInKm) {
+    if (distInKm < 1) return Math.round(distInKm * 100) * 10 + " m";
+    return Number(distInKm).toFixed(1) + " km";
+}
+

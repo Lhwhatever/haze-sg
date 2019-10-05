@@ -39,22 +39,36 @@
         <b-container id="main" class="pt-3">
             <b-row>
                 <b-col cols="12" lg="6">
-                    <indicator v-bind:indicator="indicators.pm25_1h"></indicator>
+                    <indicator v-bind:indicator="indicators.pm25_1h" v-bind:location="location"></indicator>
                 </b-col>
                 <b-col cols="12" lg="6">
-                    <indicator v-bind:indicator="indicators.psi_24h"></indicator>
+                    <indicator v-bind:indicator="indicators.psi_24h" v-bind:location="location"></indicator>
                 </b-col>
             </b-row>
         </b-container>
     </div>
 
     <script type="text/x-template" id="reading-template">
-        <div class="reading text-center pb-3">
-            <span class="text-capitalize">{{ read.zone }}</span>
-            <br>
-            <h2 v-bind:class="read.classes">{{ read.value }}</h2>
-            <span class="text-capitalize">{{ read.band }}</span>
+        <div class="reading text-center mb-3 d-flex flex-column">
+            <div class="text-capitalize">{{ read.zone }}</div>
+            <div><h3 v-bind:class="read.classes" class="mb-0">{{ read.value }}</h3></div>
+            <div><span class="text-capitalize">{{ read.band }}</span></div>
         </div>
+    </script>
+
+    <script type="text/x-template" id="highlight-template">
+        <b-container class="reading highlight mb-4"><b-row>
+            <b-col cols="5" class="text-right highlight-value align-middle">
+                <span v-bind:class="highlight.classes">{{ highlight.value }}</span>
+            </b-col>
+            <b-col cols="7" class="d-flex flex-column justify-content-center text-left bd-highlight">
+                <div>
+                    <span class="text-capitalize">{{ highlight.zone }}</span>
+                    <span v-if="location" class="dist"> ({{ distance }}<span class="away"> away</span>)</span>
+                </div>
+                <div><span class="text-capitalize">{{ highlight.band }}</span></div>
+            </b-col>
+        </b-row></b-container>
     </script>
 
     <script type="text/x-template" id="indicator-template">
@@ -63,8 +77,13 @@
                 <b-card-title v-html="indicator.title"></b-card-title>
                 <span class="mt-1 ml-2">{{ indicator.subtitle }}</span>
             </div>
-            <b-card-sub-title class="float-none clearfix pb-2">for {{ indicator.time.toLocaleString() }} </b-card-sub-title>
+            <b-card-sub-title class="float-none clearfix pb-2">for {{ timeString }} </b-card-sub-title>
             <b-container>
+                <b-row no-gutters><b-col>
+                    <highlight
+                        v-bind:highlight="indicator.getData(highlightId)" v-bind:location="location"
+                    ></highlight>
+                </b-col></b-row>
                 <b-row>
                     <b-col cols="6" md="4">
                         <reading v-bind:ind="indicator.id" v-bind:read="indicator.getData('north')"></reading>
@@ -86,6 +105,8 @@
         </b-card>
     </script>
 
+    <script src="scripts/datetime.js"></script>
+    <script src="scripts/geo.js"></script>
     <script src="scripts/indicators.js"></script>
     <script src="scripts/main.js"></script>
 </body>

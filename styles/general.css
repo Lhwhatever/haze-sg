@@ -6,24 +6,39 @@
     --band-red: rgb(213, 38, 30);
 }
 
-#psi_24h .reading > .good {
+#psi_24h .reading .good {
     color: var(--band-green);
 }
 
-#psi_24h .reading > .moderate, #pm25_1h .reading > .normal {
+#psi_24h .reading .moderate, #pm25_1h .reading .normal {
     color: var(--band-blue);
 }
 
-#psi_24h .reading > .unhealthy, #pm25_1h .reading > .elevated {
+#psi_24h .reading .unhealthy, #pm25_1h .reading .elevated {
     color: var(--band-yellow);
 }
 
-#psi_24h .reading > .v_unhealthy, #pm25_1h .reading > .high {
+#psi_24h .reading .v_unhealthy, #pm25_1h .reading .high {
     color: var(--band-orange);
 }
 
-#psi_24h .reading > .hazardous, #pm25_1h .reading > .v_high {
+#psi_24h .reading .hazardous, #pm25_1h .reading .v_high {
     color: var(--band-red);
+}
+
+.highlight-value {
+    font-size: 220%;
+    font-weight: bold;
+}
+
+.dist {
+    font-size: 80%
+}
+
+@media (max-width: 391px) {
+.away {
+    display: none
+}
 }
 
 .card#psi_24h.good {
@@ -50,6 +65,6 @@
     border-radius: 0.5em
 }
 
-.reading:hover, .reading:focus {
+.reading:hover:not(.highlight), .reading:focus:not(.highlight) {
     background-color: #eee
 }

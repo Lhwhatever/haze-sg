@@ -85,7 +85,7 @@ updateIndicators = function (vm, ind) {
         var indicator = vm.indicators[ind.id];
         var items = response.data.items;
 
-        indicator.time = new Date(items[0].timestamp);
+        indicator.time = items[0].timestamp;
 
         for (const [zone, value] of Object.entries(items[0].readings[ind.key])) {
             indicator.data[zone].value = value;
